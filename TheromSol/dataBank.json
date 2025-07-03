@@ -1,0 +1,94 @@
+{
+  "species": [
+    {
+      "name": "acetone",
+      "formula": "C3H6O",
+      "VaporpressureModels": {
+        "antoine": {
+          "A": 21.2223,
+          "B": 2756.22,
+          "C": -45.09
+        }
+      }
+    },
+    {
+      "name": "methanol",
+      "formula": "CH3OH",
+      "VaporpressureModels": {
+        "antoine": {
+          "A": 23.4864,
+          "B": 3638.27,
+          "C": -33.65
+        }
+      }
+    },
+    {
+      "name": "water",
+      "formula": "H2O",
+      "VaporpressureModels": {
+        "antoine": {
+          "A": 23.295,
+          "B": 3885.7,
+          "C": -42.98
+        }
+      }
+    }
+  ],
+  "binaryData": {
+    "NRTL": {
+      "dg": {
+        "pairs": [
+          {
+            "p1": "acetone",
+            "p2": "methanol",
+            "a": 184.7
+          },
+          {
+            "p1": "acetone",
+            "p2": "water",
+            "a": 631.05
+          },
+          {
+            "p1": "methanol",
+            "p2": "acetone",
+            "a": 222.64
+          },
+          {
+            "p1": "methanol",
+            "p2": "water",
+            "a": -253.88
+          },
+          {
+            "p1": "water",
+            "p2": "acetone",
+            "a": 1197.41
+          },
+          {
+            "p1": "water",
+            "p2": "methanol",
+            "a": 845.21
+          }
+        ]
+      },
+      "alpha": {
+        "pairs": [
+          {
+            "p1": "methanol",
+            "p2": "acetone",
+            "alpha": 0.3084
+          },
+          {
+            "p1": "water",
+            "p2": "acetone",
+            "alpha": 0.5343
+          },
+          {
+            "p1": "water",
+            "p2": "methanol",
+            "alpha": 0.2994
+          }
+        ]
+      }
+    }
+  }
+}
