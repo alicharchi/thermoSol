@@ -4,21 +4,19 @@
 #include "Matrix.h"
 #include "dllHeader.h"
 
-using namespace std;
-
 class PHASEEQUIL_API NRTL : public ExcessGibbsEnergyModel
 {
 public:
 	NRTL(Species * const species);
 	~NRTL();
 
-	virtual void Gamma(const double* const x, const double T, double* const gamma) override;
-	virtual double ExcessGibbsEnergy(const double* const x, const double T) override;
+	virtual void Gamma(std::span<const double> x, const double T, std::span<double> gamma) override;
+	virtual double ExcessGibbsEnergy(std::span<const double> x, const double T) override;
 
 private:	
 	void UpdateCoeffs(const double T);
-	double TauGx(int i, const double* const x) const;
-	double Gx(int k, const double* const x) const;
+	double TauGx(int i, std::span<const double> x) const;
+	double Gx(int k, std::span<const double> x) const;
 
 	Species* const _species;
 	const int _n;

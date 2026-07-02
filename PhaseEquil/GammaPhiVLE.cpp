@@ -18,14 +18,14 @@ GammaPhiVLE::GammaPhiVLE(
 	const int n = _species->Size();
 
 	//Allocate memory for arrays
-	_pSat = new double[n];
-	_TSat = new double[n];
-	_gamma = new double[n];
-	_Phi = new double[n];
-	_gammaNew = new double[n];
-	_K = new double[n];
-	_xNew = new double[n];
-	_yNew = new double[n];
+	_pSat.resize(n, 0);
+	_TSat.resize(n, 0);
+	_gamma.resize(n, 0);
+	_Phi.resize(n, 0);
+	_gammaNew.resize(n, 0);
+	_K.resize(n, 0);
+	_xNew.resize(n, 0);
+	_yNew.resize(n, 0);
 
 	//Set tols and max iters
 	_maxInerIters = 20;
@@ -36,14 +36,7 @@ GammaPhiVLE::GammaPhiVLE(
 
 GammaPhiVLE::~GammaPhiVLE()
 {
-	delete [] _pSat;
-	delete [] _TSat;
-	delete [] _gamma;
-	delete [] _Phi;
-	delete [] _gammaNew;
-	delete [] _K;
-	delete [] _xNew;
-	delete [] _yNew;
+
 }
 
 int GammaPhiVLE::nSpecies() const
@@ -51,7 +44,7 @@ int GammaPhiVLE::nSpecies() const
 	return _species->Size();
 }
 
-int GammaPhiVLE::BublP(const double T, const double* const x, double& p, double* const y)
+int GammaPhiVLE::BublP(const double T, const std::span<const double> x, double& p, std::span<double> y)
 {
 	try
 	{
@@ -75,14 +68,14 @@ int GammaPhiVLE::BublP(const double T, const double* const x, double& p, double*
 
 		return iters;
 	}
-	catch (const exception& ex)
+	catch (const std::exception& ex)
 	{
-		cerr << "\nError in " << __FUNCTION__ << ex.what() << "\n";
+		std::cerr << "\nError in " << __FUNCTION__ << ex.what() << "\n";
 		return -1;
 	}
 }
 
-int GammaPhiVLE::BublT(const double p, const double* const x, double& T, double* const y)
+int GammaPhiVLE::BublT(const double p, const std::span<const double> x, double& T, std::span<double> y)
 {
 	try
 	{
@@ -94,7 +87,7 @@ int GammaPhiVLE::BublT(const double p, const double* const x, double& T, double*
 		PhiToOne();
 
 		_species->GetTSat(p, _TSat);				
-		T = Thermo::DotProd(x, _TSat, n);
+		T = Thermo::DotProd(x, _TSat);
 		_acModel->Gamma(x, T, _gamma);		
 
 		do {
@@ -110,14 +103,14 @@ int GammaPhiVLE::BublT(const double p, const double* const x, double& T, double*
 
 		return iters;
 	}
-	catch (const exception& ex)
+	catch (const std::exception& ex)
 	{
-		cerr << "\nError in " << __FUNCTION__ << ex.what() << "\n";
+		std::cerr << "\nError in " << __FUNCTION__ << ex.what() << "\n";
 		return -1;
 	}
 }
 
-int GammaPhiVLE::DewP(const double T, const double* const y, double& p, double* const x)
+int GammaPhiVLE::DewP(const double T, const std::span<const double> y, double& p, std::span<double> x)
 {
 	try
 	{
@@ -140,10 +133,10 @@ int GammaPhiVLE::DewP(const double T, const double* const y, double& p, double* 
 			int innerIters = 1;
 			do {				
 				CalcX(y, p, x);
-				Thermo::Normalize(x, n);
+				Thermo::Normalize(x);
 				_acModel->Gamma(x, T, _gammaNew);
-				converged = Thermo::IsConverged(_gamma, _gammaNew, _innerTol, n);
-				copy_n(_gammaNew,n, _gamma);			
+				converged = Thermo::IsConverged(_gamma, _gammaNew, _innerTol);				
+				std::copy(_gammaNew.begin(), _gammaNew.end(), _gamma.begin());
 				innerIters += 1;
 			} while (!converged && innerIters < _maxInerIters);
 
@@ -157,14 +150,14 @@ int GammaPhiVLE::DewP(const double T, const double* const y, double& p, double* 
 
 		return outerIters;
 	}
-	catch (const exception& ex)
+	catch (const std::exception& ex)
 	{
-		cerr << "\nError in " << __FUNCTION__ << ex.what() << "\n";
+		std::cerr << "\nError in " << __FUNCTION__ << ex.what() << "\n";
 		return -1;
 	}
 }
 
-int GammaPhiVLE::DewT(const double p, const double* const y, double& T, double* const x)
+int GammaPhiVLE::DewT(const double p, const std::span<const double> y, double& T, std::span<double> x)
 {
 	try
 	{
@@ -179,7 +172,7 @@ int GammaPhiVLE::DewT(const double p, const double* const y, double& T, double* 
 		const auto& spJ = _species->GetSpecie(j);
 
 		_species->GetTSat(p, _TSat);
-		T = Thermo::DotProd(y, _TSat, n);
+		T = Thermo::DotProd(y, _TSat);
 		_species->GetpSat(T, _pSat);
 		_pSat[j] = PsatJy(j, y, p);
 		
@@ -197,10 +190,10 @@ int GammaPhiVLE::DewT(const double p, const double* const y, double& T, double* 
 			int innerIters = 1;
 			do {
 				CalcX(y, p, x);
-				Thermo::Normalize(x,n);
+				Thermo::Normalize(x);
 				_acModel->Gamma(x, T, _gammaNew);
-				converged = Thermo::IsConverged(_gamma, _gammaNew, _innerTol, n);
-				copy_n(_gammaNew, n, _gamma);
+				converged = Thermo::IsConverged(_gamma, _gammaNew, _innerTol);				
+				std::copy(_gammaNew.begin(), _gammaNew.end(), _gamma.begin());
 				innerIters += 1;
 			} while (!converged && innerIters < _maxInerIters);
 
@@ -214,14 +207,14 @@ int GammaPhiVLE::DewT(const double p, const double* const y, double& T, double* 
 
 		return outerIters;
 	}
-	catch (const exception& ex)
+	catch (const std::exception& ex)
 	{
-		cerr << "\nError in " << __FUNCTION__ << ex.what() << "\n";
+		std::cerr << "\nError in " << __FUNCTION__ << ex.what() << "\n";
 		return -1;
 	}
 }
 
-int GammaPhiVLE::Flash(const double T, const double p, const double* const z, double& v, double* const x, double* const y)
+int GammaPhiVLE::Flash(const double T, const double p, const std::span<const double> z, double& v, std::span<double> x, std::span<double> y)
 {
 	try
 	{
@@ -238,19 +231,18 @@ int GammaPhiVLE::Flash(const double T, const double p, const double* const z, do
 
 		if (p < pDew)
 		{
-			cout << "p should be in the range of [" << pDew << "," << pBubl << "]\n";
+			std::cout << "p should be in the range of [" << pDew << "," << pBubl << "]\n";
 			v = 1;
 			return -1;
 		}
 		else if (p > pBubl)
 		{
-			cout << "p should be in the range of [" << pDew << "," << pBubl << "]\n";
+			std::cout << "p should be in the range of [" << pDew << "," << pBubl << "]\n";
 			v = 0;
 			return -1;
 		}
 
-		std::copy_n(z, n, y);
-		std::copy_n(z, n, y);
+		std::copy(z.begin(), z.end(), y.begin());		
 
 		_acModel->Gamma(x, T, _gamma);
 		_fgModel->Phi(y, T, p, _Phi);
@@ -287,9 +279,11 @@ int GammaPhiVLE::Flash(const double T, const double p, const double* const z, do
 				_yNew[i] = x[i] * _K[i];			
 			}
 
-			converged = Thermo::IsConverged(x, _xNew, _outerTol, n) && Thermo::IsConverged(y, _yNew, _outerTol, n);
-			std::copy_n(_xNew, n, x);
-			std::copy_n(_yNew, n, y);
+			converged = Thermo::IsConverged(x, _xNew, _outerTol) && Thermo::IsConverged(y, _yNew, _outerTol);
+			
+			std::copy(_xNew.begin(), _xNew.end(), x.begin());
+			std::copy(_yNew.begin(), _yNew.end(), y.begin());
+			
 
 			_acModel->Gamma(x, T, _gamma);
 			_fgModel->Phi(y, T, p, _Phi);
@@ -299,26 +293,24 @@ int GammaPhiVLE::Flash(const double T, const double p, const double* const z, do
 
 		return outterIters;
 	}
-	catch (const exception& ex)
+	catch (const std::exception& ex)
 	{
-		cerr << "\nError in " << __FUNCTION__ << ex.what() << "\n";
+		std::cerr << "\nError in " << __FUNCTION__ << ex.what() << "\n";
 		return -1;
 	}
 }
 
 void GammaPhiVLE::PhiToOne()
 {
-	for (int k = 0; k < _species->Size(); k++)
-		_Phi[k] = 1.0;
+	std::fill(_Phi.begin(), _Phi.end(), 1.0);
 }
 
 void  GammaPhiVLE::GammaToOne()
 {
-	for (int k = 0; k < _species->Size(); k++)
-		_gamma[k] = 1.0;
+	std::fill(_gamma.begin(), _gamma.end(), 1.0);
 }
 
-double GammaPhiVLE::PsatJx(const int j, const double* const x, const double p)
+double GammaPhiVLE::PsatJx(const int j, const std::span<const double> x, const double p)
 {
 	double s = 0;
 	for (int k = 0; k < _species->Size(); ++k)
@@ -326,7 +318,7 @@ double GammaPhiVLE::PsatJx(const int j, const double* const x, const double p)
 	return p / s;
 }
 
-double GammaPhiVLE::PsatJy(const int j, const double* const y, const double p)
+double GammaPhiVLE::PsatJy(const int j, const std::span<const double> y, const double p)
 {
 	double s = 0;
 	for (int k = 0; k < _species->Size(); ++k)
@@ -334,7 +326,7 @@ double GammaPhiVLE::PsatJy(const int j, const double* const y, const double p)
 	return p * s;
 }
 
-double GammaPhiVLE::CalcPx(const double* const x)
+double GammaPhiVLE::CalcPx(const std::span<const double> x)
 {
 	double s = 0;
 	for (int k = 0; k < _species->Size(); ++k)
@@ -342,7 +334,7 @@ double GammaPhiVLE::CalcPx(const double* const x)
 	return s;
 }
 
-double GammaPhiVLE::CalcPy(const double* const y)
+double GammaPhiVLE::CalcPy(const std::span<const double> y)
 {
 	double s = 0;
 	for (int k = 0; k < _species->Size(); ++k)
@@ -352,13 +344,13 @@ double GammaPhiVLE::CalcPy(const double* const y)
 	return s;
 }
 
-void GammaPhiVLE::CalcX(const double* const y, const double p, double* const x)
+void GammaPhiVLE::CalcX(const std::span<const double> y, const double p, const std::span<double> x)
 {
 	for (int k = 0; k < _species->Size(); ++k)
 		x[k] = y[k] * _Phi[k] * p / (_gamma[k] * _pSat[k]);
 }
 
-void GammaPhiVLE::CalcY(const double* const x, const double p, double* const y)
+void GammaPhiVLE::CalcY(const std::span<const double> x, const double p, const std::span<double> y)
 {
 	for (int k = 0; k < _species->Size(); ++k)
 		y[k] = (x[k] * _gamma[k] * _pSat[k]) / (_Phi[k] * p);
@@ -367,7 +359,7 @@ void GammaPhiVLE::CalcY(const double* const x, const double p, double* const y)
 void GammaPhiVLE::SetMaxInnerIters(int n)
 {
 	if (n <= 0)
-		cerr << "Error: Can not set MaxInnerIters to " << n << "\n";
+		std::cerr << "Error: Can not set MaxInnerIters to " << n << "\n";
 	else
 		_maxInerIters = n;
 }
@@ -375,7 +367,7 @@ void GammaPhiVLE::SetMaxInnerIters(int n)
 void GammaPhiVLE::SetMaxOuterIters(int n)
 {
 	if (n <= 0)
-		cerr << "Error: Can not set MaxOuterIters to " << n << "\n";
+		std::cerr << "Error: Can not set MaxOuterIters to " << n << "\n";
 	else
 		_maxOuterIters = n;
 }
@@ -383,7 +375,7 @@ void GammaPhiVLE::SetMaxOuterIters(int n)
 void GammaPhiVLE::SetInnerTol(double a)
 {
 	if (a <= 0)
-		cerr << "Error: Can not set InnerTol to " << a << "\n";
+		std::cerr << "Error: Can not set InnerTol to " << a << "\n";
 	else
 		_innerTol = a;
 }
@@ -391,7 +383,7 @@ void GammaPhiVLE::SetInnerTol(double a)
 void GammaPhiVLE::SetOuterTol(double a)
 {
 	if (a <= 0)
-		cerr << "Error: Can not set OuterTol to " << a << "\n";
+		std::cerr << "Error: Can not set OuterTol to " << a << "\n";
 	else
 		_outerTol = a;
 }

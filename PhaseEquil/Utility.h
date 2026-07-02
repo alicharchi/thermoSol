@@ -1,13 +1,14 @@
 #pragma once
-#include <numeric>
+
 #include <algorithm>
 #include "Species.h"
+#include <span>
 
 namespace Thermo
 {			
-	void Normalize(double* const x, size_t n);
+	void Normalize(std::span<double> x);
 	
-	double DotProd(const double* const a, const double* const b, size_t n);
+	double DotProd(const std::span<const double> a, const std::span<const double> b);
 		
-	bool IsConverged(const double* const a, const double* const b, const double tol, size_t n);
+	bool IsConverged(const std::span<const double> a, const std::span<const double> b, const double tol);
 }

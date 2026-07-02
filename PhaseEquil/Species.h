@@ -6,6 +6,7 @@
 #include <tuple>
 #include <map>
 #include <memory>
+#include <span>
 
 #include "dllHeader.h"
 #include "Specie.h"
@@ -19,7 +20,7 @@ public:
 	template <typename T, typename S>
 	Species(const T& data, const S& selectedSpecies)
 	{
-		string spName, spFormula;
+		std::string spName, spFormula;
 		
 		_species.reserve(selectedSpecies.size());
 
@@ -55,7 +56,7 @@ public:
 		_NRTLbinarydGCoeffs.setSize(selectedSpecies.size(),1.0);
 		_NRTLbinaryalphaCoeffs.setSize(selectedSpecies.size(),1.0);
 
-		string p1Name, p2Name;
+		std::string p1Name, p2Name;
 		int p1Id, p2Id;
 		{
 			double a;
@@ -106,8 +107,8 @@ public:
 	const Matrix<double>& NRTLbinarydGCoeffs() const;
 	const Matrix<double>& NRTLbinaryalphaCoeffs() const;
 
-	void GetpSat(const double T, double* const outVec);
-	void GetTSat(const double p, double* const outVec);
+	void GetpSat(const double T, const std::span<double> outVec);
+	void GetTSat(const double p, const std::span<double> outVec);
 
 private:
 	std::vector<Specie> _species;

@@ -5,15 +5,13 @@
 #include <initializer_list>
 #include "Species.h"
 
-using namespace std;
-
 class PHASEEQUIL_API SpeciesFactory
 {
 public:
-	static unique_ptr<Species> MakeSpecies
+	static std::unique_ptr<Species> MakeSpecies
 	(
-		const string& speciesPath,
-		initializer_list<string> selectedSpecies
+		const std::string& speciesPath,
+		std::initializer_list<std::string> selectedSpecies
 	);
 
 private:

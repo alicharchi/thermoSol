@@ -1,27 +1,21 @@
 #include "Utility.h"
+#include <numeric>
 
-void Thermo::Normalize(double* const x, size_t n)
+void Thermo::Normalize(std::span<double> x)
 {
-	double s = 0;
-	for (int k = 0; k < n; ++k)
-		s += x[k];
-
-	for (int k = 0; k < n; ++k)
-		x[k] /= s;
+	const double s = std::accumulate(x.begin(),x.end(),0.0);
+	if (s == 0.0) return; 
+	std::transform(x.begin(), x.end(), x.begin(), [s](auto& a) {return a / s; });
 }
 
-double Thermo::DotProd(const double* const a, const double* const b, size_t n)
+double Thermo::DotProd(const std::span<const double> a, const std::span<const double> b)
 {
-	double s = 0;
-	for (int k = 0; k < n; ++k)
-		s += a[k] * b[k];
-
-	return s;
+	return std::inner_product(std::begin(a), std::end(a), std::begin(b),0.0);
 }
 
-bool Thermo::IsConverged(const double* const a, const double* const b, const double tol, size_t n)
+bool Thermo::IsConverged(const std::span<const double> a, const std::span<const double> b, const double tol)
 {
-	for (int k = 0; k < n; ++k)
+	for (int k = 0; k < a.size(); ++k)
 		if (std::abs(a[k] - b[k]) > tol) return false;
 
 	return true;
