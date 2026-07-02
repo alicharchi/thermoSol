@@ -56,26 +56,16 @@ public:
 		return _data[i * _n + j];
 	}
 
-	void setSize(size_t m, size_t n)
-	{
-		setSize(m, n, Tx());
+	void setSize(size_t m, size_t n, Tx f = Tx()) 
+	{ 
+		_m = m; 
+		_n = n; 
+		_data.assign(_m * _n, f);
 	}
 
-	void setSize(size_t m, size_t n, Tx f)
-	{
-		_m = m;
-		_n = n;
-		_data.resize(_n * _m, f);		
-	}
-
-	void setSize(size_t n)
-	{
-		setSize(n, Tx());
-	}
-
-	void setSize(size_t n, Tx f)
-	{
-		setSize(n, n, f);
+	void setSizeSquare(size_t n, Tx f = Tx()) 
+	{ 
+		setSize(n, n, f); 
 	}
 
 	void fill(const Tx& f)
