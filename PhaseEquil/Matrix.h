@@ -1,54 +1,59 @@
 #pragma once
 #include <stdexcept>
+#include <vector>
+#include <cassert>
+#include <algorithm>
 
 template <typename Tx>
 class Matrix
 {
 public:
 	Matrix()
-		:_m(0), _n(0)
+		:
+		_m(0), 
+		_n(0)		
 	{		
 	}
 
 	Matrix(size_t m, size_t n)
 		:_m(m), _n(n)
 	{
-		memAlocate();
+		_data.resize(_n * _m);
 	}
 
-	Matrix(size_t m, size_t n, double f)
+	Matrix(size_t m, size_t n, Tx f)
 		:_m(m), _n(n)
 	{
-		memAlocate();
-		fill(f);
+		_data.resize(_n * _m, f);
 	}
 
-	Matrix(const Matrix&) = delete;
+	Matrix(const Matrix&) = default;
+	Matrix(Matrix&&) = default;
+	Matrix& operator=(Matrix&&) = default;
 
 	Matrix& operator= (const Matrix& rhs){
+
+		if (this == &rhs) return *this;
+
 		if (nRows() != rhs.nRows() || nCols() != rhs.nCols()){
-			throw std::runtime_error("Invlid matrix assined");
+			throw std::runtime_error("Invlid matrix assigned");
 		}
 
-		for (size_t i = 0; i < _m; i++)
-		{
-			for (size_t j = 0; j < _n; j++)
-				_data[i][j] = rhs(i, j);			
-		}
+		std::copy(rhs.begin(), rhs.end(), this->begin());
+		
+		return *this;
 	}
 
-	virtual ~Matrix(){
-		for (size_t i = 0; i < _m; i++)
-			delete[] _data[i];
-		delete[] _data;
-	}
+	~Matrix(){}
 
 	const Tx& operator()(size_t i, size_t j) const{
-		return _data[i][j];
+		assert(i < _m && j < _n);
+		return _data[i * _n + j];
 	}
 
 	Tx& operator()(size_t i, size_t j){
-		return _data[i][j];
+		assert(i < _m && j < _n);
+		return _data[i * _n + j];
 	}
 
 	void setSize(size_t m, size_t n)
@@ -60,8 +65,7 @@ public:
 	{
 		_m = m;
 		_n = n;
-		memAlocate();
-		fill(f);
+		_data.resize(_n * _m, f);		
 	}
 
 	void setSize(size_t n)
@@ -74,16 +78,11 @@ public:
 		setSize(n, n, f);
 	}
 
-	void fill(const double f){
-		for (size_t i = 0; i < _m; i++)
-		{
-			for (size_t j = 0; j < _n; j++)
-			{
-				_data[i][j] = f;
-			}
-		}
-	}
-	
+	void fill(const Tx& f)
+	{
+		std::fill(_data.begin(), _data.end(), f);
+	}	
+
 	size_t nRows() const
 	{
 		return _m;
@@ -94,17 +93,29 @@ public:
 		return _n;
 	}
 
+	std::vector<Tx>::iterator begin()
+	{
+		return std::begin(_data);
+	}
+
+	std::vector<Tx>::iterator end()
+	{
+		return std::end(_data);
+	}
+
+	std::vector<Tx>::const_iterator begin() const 
+	{ 
+		return std::begin(_data); 
+	}
+
+	std::vector<Tx>::const_iterator end() const 
+	{ 
+		return std::end(_data); 
+	}
+
+
 private:
 	size_t _m, _n;
-	Tx** _data;
-
-	void memAlocate()
-	{
-		_data = new double* [_m];
-		for (size_t i = 0; i < _m; i++)
-		{
-			_data[i] = new double[_n];
-		}
-	}
+	std::vector<Tx> _data;
 };
 
