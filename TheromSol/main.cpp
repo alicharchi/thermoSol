@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <memory>
 
 #include "Species.h"
 #include "NRTL.h"
@@ -9,8 +10,6 @@
 
 #include "SpeciesFactory.h"
 
-using namespace std;
-
 template <typename T>
 void MakeTxyPlot(T& vle)
 {
@@ -18,14 +17,14 @@ void MakeTxyPlot(T& vle)
 	const double dx = (double)1.0 / n;
 	double x[2], y[2];
 
-	ofstream myfile("out.csv", ios::out);
+	std::ofstream myfile("out.csv", std::ios::out);
 	myfile << "x" << "," << "Tb" << "," << "Td" << "," << "p" << "\n";
 
 	for (const double c : {0.2, 0.4, 0.6, 0.8, 1.0})
 	{
 		
 		const double p = 101325 * c * 4;
-		vector<double> Tdew(n + 1, 0.0), Tbubl(n + 1, 0.0);
+		std::vector<double> Tdew(n + 1, 0.0), Tbubl(n + 1, 0.0);
 
 		{
 			//Make bubble curve
@@ -78,38 +77,38 @@ void VLEExample(T& vle)
 
 	double pB;
 	r = vle->BublP(T0, z0, pB, y);
-	cout << "BP r = " << r << "\n";
-	cout << "   y = " << y[0] << " , " << y[1] << "\n";
-	cout << "   p = " << pB << "\n";
-	cout << "\n";
+	std::cout << "BP r = " << r << "\n";
+	std::cout << "   y = " << y[0] << " , " << y[1] << "\n";
+	std::cout << "   p = " << pB << "\n";
+	std::cout << "\n";
 
 	double TB;
 	r = vle->BublT(p0, z0, TB, y);
-	cout << "BT r = " << r << "\n";
-	cout << "   y = " << y[0] << " , " << y[1] << "\n";
-	cout << "   T = " << TB << "\n";
-	cout << "\n";
+	std::cout << "BT r = " << r << "\n";
+	std::cout << "   y = " << y[0] << " , " << y[1] << "\n";
+	std::cout << "   T = " << TB << "\n";
+	std::cout << "\n";
 
 	double pD;
 	r = vle->DewP(T0, z0, pD, x);
-	cout << "DP r = " << r << "\n";
-	cout << "   x = " << x[0] << " , " << x[1] << "\n";
-	cout << "   p = " << pD << "\n";
-	cout << "\n";
+	std::cout << "DP r = " << r << "\n";
+	std::cout << "   x = " << x[0] << " , " << x[1] << "\n";
+	std::cout << "   p = " << pD << "\n";
+	std::cout << "\n";
 
 	double TD;
 	r = vle->DewT(p0, z0, TD, x);
-	cout << "DT r = " << r << "\n";
-	cout << "   x = " << x[0] << " , " << x[1] << "\n";
-	cout << "   T = " << TD << "\n";
-	cout << "\n";
+	std::cout << "DT r = " << r << "\n";
+	std::cout << "   x = " << x[0] << " , " << x[1] << "\n";
+	std::cout << "   T = " << TD << "\n";
+	std::cout << "\n";
 
 	double v;
 	r = vle->Flash((TD+TB)/2, p0, z0, v, x, y);
-	cout << "FL r = " << r << "\n";
-	cout << "   v = " << v << "\n";
-	cout << "   x = " << x[0] << " , " << x[1] << "\n";
-	cout << "   y = " << y[0] << " , " << y[1] << "\n";		
+	std::cout << "FL r = " << r << "\n";
+	std::cout << "   v = " << v << "\n";
+	std::cout << "   x = " << x[0] << " , " << x[1] << "\n";
+	std::cout << "   y = " << y[0] << " , " << y[1] << "\n";
 
 }
 
@@ -118,10 +117,10 @@ int main()
 	const auto species = SpeciesFactory::MakeSpecies("dataBank.json",{"water","acetone"});
 	auto* const spPtr = species.get();
 
-	const auto ac = make_unique<NRTL>(spPtr);
-	const auto fg = make_unique<IdealGasMixtureModel>(spPtr);
+	const auto ac = std::make_unique<NRTL>(spPtr);
+	const auto fg = std::make_unique<IdealGasMixtureModel>(spPtr);
 
-	unique_ptr<VLE> vle = make_unique<GammaPhiVLE>(spPtr, ac.get(), fg.get());
+	std::unique_ptr<VLE> vle = std::make_unique<GammaPhiVLE>(spPtr, ac.get(), fg.get());
 
 	MakeTxyPlot(vle);
 	VLEExample(vle);

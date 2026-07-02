@@ -32,7 +32,7 @@ void NRTL::UpdateCoeffs(const double T)
 	}
 }
 
-double NRTL::TauGx(int i, const double* const x) const
+double NRTL::TauGx(int i, std::span<const double> x) const
 {	
 	double s = 0;
 	for (int j = 0; j < _species->Size(); j++)
@@ -41,7 +41,7 @@ double NRTL::TauGx(int i, const double* const x) const
 	return s;
 }
 
-double NRTL::Gx(int k, const double* const x) const
+double NRTL::Gx(int k, std::span<const double> x) const
 {	
 	double s = 0;
 	for (int j = 0; j < _species->Size(); j++)
@@ -50,10 +50,11 @@ double NRTL::Gx(int k, const double* const x) const
 	return s;
 }
 
-void NRTL::Gamma(const double* const x, const double T, double* const gamma)
+void NRTL::Gamma(std::span<const double> x, const double T, std::span<double> gamma)
 {
 	UpdateCoeffs(T);
 	const int n = _species->Size();
+
 	double lnGamma;
 	
 	double xgs,gx;
@@ -71,7 +72,7 @@ void NRTL::Gamma(const double* const x, const double T, double* const gamma)
 	}	
 }
 
-double NRTL::ExcessGibbsEnergy(const double* const x, const double T)
+double NRTL::ExcessGibbsEnergy(std::span<const double> x, const double T)
 {	
 	UpdateCoeffs(T);
 	const int n = _species->Size();

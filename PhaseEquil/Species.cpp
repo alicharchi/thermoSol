@@ -42,13 +42,14 @@ const Matrix<double>& Species::NRTLbinaryalphaCoeffs() const
     return _NRTLbinaryalphaCoeffs;
 }
 
-void Species::GetpSat(const double T, double* const outVec)
+void Species::GetpSat(const double T, const std::span<double> outVec)
 {
     for (int k = 0; k < Size(); ++k)
         outVec[k] = GetSpecie(k).VaporPressure()->pSat(T);
+
 }
 
-void Species::GetTSat(const double p, double* const outVec)
+void Species::GetTSat(const double p, const std::span<double> outVec)
 {
     for (int k = 0; k < Size(); ++k)
         outVec[k] = GetSpecie(k).VaporPressure()->TSat(p);

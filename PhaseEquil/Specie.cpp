@@ -1,5 +1,7 @@
 #include "Specie.h"
 
+using std::string;
+
 Specie::Specie(string name, string formula, VaporPressureModel* const vaporPressureModel)
 	:
 	_name(name), _formula(formula), _vaporPressureModel(vaporPressureModel)

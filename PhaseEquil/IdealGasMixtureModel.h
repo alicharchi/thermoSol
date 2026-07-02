@@ -8,7 +8,7 @@ class PHASEEQUIL_API IdealGasMixtureModel : public FugacityCoefficientModel
 public:	
 	IdealGasMixtureModel(Species* const species);
 
-	virtual void Phi(const double* const y, const double T, const double p, double* const phi) override;
+	virtual void Phi(const std::span<const double> y, const double T, const double p, const std::span<double> phi) override;
 
 private:
 	Species* const _species;

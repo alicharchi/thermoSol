@@ -19,15 +19,15 @@ public:
 
 	virtual int nSpecies() const override;
 
-	virtual int BublP(const double T, const double* const x, double& p, double* const y) override;
+	virtual int BublP(const double T, const std::span<const double> x, double& p, std::span<double> y) override;
 
-	virtual int BublT(const double p, const double* const x, double& T, double* const y) override;
+	virtual int BublT(const double p, const std::span<const double> x, double& T, std::span<double> y) override;
 
-	virtual int DewP(const double T, const double* const y, double& p, double* const x) override;
+	virtual int DewP(const double T, const std::span<const double> y, double& p, std::span<double> x) override;
   
-	virtual int DewT(const double p, const double* const y, double& T, double* const x) override;
+	virtual int DewT(const double p, const std::span<const double> y, double& T, std::span<double> x) override;
 
-	virtual int Flash(const double T, const double p, const double* const z, double& v, double* const x, double* const y) override;
+	virtual int Flash(const double T, const double p, const std::span<const double> z, double& v, std::span<double> x, std::span<double> y) override;
 
 	virtual void SetMaxInnerIters(int n) override;
 	virtual void SetMaxOuterIters(int n) override;
@@ -41,7 +41,7 @@ private:
 	ExcessGibbsEnergyModel* const _acModel;
 	FugacityCoefficientModel* const _fgModel;		
 
-	double *_pSat, *_TSat, *_gamma, *_Phi, *_gammaNew, *_K, *_xNew, *_yNew;
+	std::vector<double> _pSat, _TSat, _gamma, _Phi, _gammaNew, _K, _xNew, _yNew;
 
 	int _maxInerIters, _maxOuterIters;
 	double _innerTol, _outerTol;
@@ -49,13 +49,13 @@ private:
 	void PhiToOne();
 	void GammaToOne();
 
-	double PsatJx(const int j, const double* const x, const double p);
-	double PsatJy(const int j, const double* const y, const double p);
+	double PsatJx(const int j, const std::span<const double> x, const double p);
+	double PsatJy(const int j, const std::span<const double> y, const double p);
 
-	double CalcPx(const double* const x);
-	double CalcPy(const double* const y);
+	double CalcPx(const std::span<const double> x);
+	double CalcPy(const std::span<const double> y);
 
-	void CalcX(const double* const y, const double p, double* const x);
-	void CalcY(const double* const x, const double p, double* const y);	
+	void CalcX(const std::span<const double> y, const double p, const std::span<double> x);
+	void CalcY(const std::span<const double> x, const double p, const std::span<double> y);
 };
 

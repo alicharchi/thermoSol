@@ -3,22 +3,20 @@
 #include "dllHeader.h"
 #include "VaporPressureModel.h"
 
-using namespace std;
-
 class PHASEEQUIL_API Specie
 {
 public:
-	Specie(string name, string formula, VaporPressureModel* const vaporPressureModel);
+	Specie(std::string name, std::string formula, VaporPressureModel* const vaporPressureModel);
 	~Specie();
 	Specie(const Specie&) = default;
 	Specie& operator=(const Specie&) = default;
 
 	VaporPressureModel * const VaporPressure() const;
-	const string& Name() const;
-	const string& Formula() const;
+	const std::string& Name() const;
+	const std::string& Formula() const;
 
 private:
-	const string _name;
-	const string _formula;
+	const std::string _name;
+	const std::string _formula;
 	VaporPressureModel* const _vaporPressureModel;
 };

@@ -7,8 +7,7 @@ IdealGasMixtureModel::IdealGasMixtureModel(Species* const species)
 {
 }
 
-void IdealGasMixtureModel::Phi(const double* const y, const double T, const double p, double* const phi)
+void IdealGasMixtureModel::Phi(const std::span<const double> y, const double T, const double p, const std::span<double> phi)
 {
-    for (int k = 0; k < _species->Size(); k++)
-        phi[k] = 1.0;    
+    std::fill(phi.begin(), phi.end(), 1.0);
 }
