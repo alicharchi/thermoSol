@@ -1,5 +1,6 @@
 #include "Utility.h"
 #include <numeric>
+#include <stdexcept>
 
 void Thermo::Normalize(std::span<double> x)
 {
@@ -10,13 +11,18 @@ void Thermo::Normalize(std::span<double> x)
 
 double Thermo::DotProd(const std::span<const double> a, const std::span<const double> b)
 {
+	if (a.size() != b.size())
+	{
+		throw std::length_error("vectors must be the same size.");
+	}
 	return std::inner_product(std::begin(a), std::end(a), std::begin(b),0.0);
 }
 
 bool Thermo::IsConverged(const std::span<const double> a, const std::span<const double> b, const double tol)
 {
-	for (int k = 0; k < a.size(); ++k)
-		if (std::abs(a[k] - b[k]) > tol) return false;
+	if (a.size() != b.size())
+		throw std::length_error("vectors must be the same size.");
 
-	return true;
+	return std::ranges::equal(a, b,
+		[tol](double x, double y) { return std::abs(x - y) <= tol; });
 }
