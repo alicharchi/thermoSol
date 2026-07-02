@@ -1,7 +1,4 @@
 #pragma once
-
-#include <algorithm>
-#include "Species.h"
 #include <span>
 
 namespace Thermo

@@ -1,6 +1,7 @@
 #include "Utility.h"
 #include <numeric>
 #include <stdexcept>
+#include <algorithm>
 
 void Thermo::Normalize(std::span<double> x)
 {
